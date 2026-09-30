@@ -1,0 +1,14 @@
+# Python 3.13 (the `causallearn` conda env). PAG figures also need the graphviz binaries:
+#   conda install -c conda-forge graphviz
+# causal-learn is pinned: adni_fci/discovery.py hooks into its FCI internals.
+causal-learn==0.1.4.3
+numpy==2.2.5
+pandas==2.2.3
+scipy==1.15.2
+scikit-learn==1.6.1
+matplotlib==3.10.1
+seaborn==0.13.2
+pydot==3.0.4
+joblib==1.4.2
+tqdm==4.67.1
+ipykernel==6.29.5  # for tutorial.ipynb

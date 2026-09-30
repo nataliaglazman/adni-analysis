@@ -1,0 +1,13 @@
+# ADNI data must never be committed (ADNI Data Use Agreement).
+data/
+data_unused/
+
+# Generated outputs and old notebooks/figures: they contain participant-level tables.
+results/
+archive/
+
+.ipynb_checkpoints/
+
+__pycache__/
+*.pyc
+.DS_Store
