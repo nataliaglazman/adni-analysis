@@ -46,7 +46,6 @@ python run_analysis.py main --ci-test fisherz --alpha 0.01
 - `main`: bootstrapped FCI, edge frequencies and PAG figures;
 - `sensitivity`: α = 0.01, 0.05 and 0.1 on the same resamples;
 - `sepsets`: separating sets of each biomarker vs hippocampal volume;
-- `stratified`: CN, MCI and AD separately, without cognitive scores.
 
 Bootstraps run in parallel on all cores (`--n-jobs`). Each one draws from its own random stream, so results do not
 depend on the number of workers.
@@ -63,7 +62,6 @@ depend on the number of workers.
 | `bootstrap_pags.npz` | raw bootstrap PAGs (`BootstrapResult.load`) |
 | `sensitivity_alpha.csv` | edge frequencies per α |
 | `sepsets.csv`, `sepsets.png` | separating sets, biomarker vs hippocampus |
-| `stratified/` | per-group edge frequencies, PAGs and a comparison table |
 
 `load_results(name)` and `compare_settings([...])` read finished runs back in, e.g. to re-plot with other thresholds
 without re-running FCI.
@@ -82,10 +80,5 @@ adni_fci/            analysis package
   pipeline.py        end-to-end run of one setting
 run_analysis.py      command line
 tutorial.ipynb       walkthrough
-data/                the 14 files the code reads: git-ignored, never commit (ADNI Data Use Agreement)
-data_unused/         every other data file, not read by the code (git-ignored for the same reason)
-results/             outputs (git-ignored, contain participant-level tables)
-archive/             old notebooks, figures and outputs (git-ignored)
-docs/                AAIC abstract; pipeline graphic for slides (pipeline.png/.svg/.pdf, made by pipeline_figure.py)
 ```
 
