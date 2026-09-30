@@ -20,20 +20,16 @@ bootstrapped FCI and the summaries.
 
 Every setting is defined once in `adni_fci/settings.py`; together they replace the old per-setting notebooks.
 
-| Setting | Differs from `main` by | Old notebook |
+| Setting | Differs from `main` by | 
 |---|---|---|
-| `main` | (plasma Aβ42/40, pTau217, NfL, GFAP; ICV, hippocampus; ADAS-Cog13; KCI, α = 0.05, 200 bootstraps) | `siemens_clean` |
-| `fisherz` | Fisher-z test instead of KCI | `siemens_clean_fisherz` |
-| `csf` | CSF Aβ42/40 and pTau181 instead of plasma | `siemens_clean_csf` |
-| `cognition` | adds MMSE, TMT-B and MoCA; no edges among cognitive scores | `siemens_clean_cog` |
-| `cognition_amygdala` | `cognition` plus amygdala volume | `siemens_clean_cog_amy`* |
-| `tau_pet` | tau PET (FTP meta-temporal SUVR) instead of plasma pTau217 | `siemens_clean_tau_pet`* |
+| `main` | (plasma Aβ42/40, pTau217, NfL, GFAP; ICV, hippocampus; ADAS-Cog13; KCI, α = 0.05, 200 bootstraps) | 
+| `fisherz` | Fisher-z test instead of KCI |
+| `csf` | CSF Aβ42/40 and pTau181 instead of plasma |
+| `cognition` | adds MMSE, TMT-B and MoCA; no edges among cognitive scores | 
+| `cognition_amygdala` | `cognition` plus amygdala volume | 
+| `tau_pet` | tau PET (FTP meta-temporal SUVR) instead of plasma pTau217 | 
 | `plasma_assays` | Mar 2026 plasma release: NfL/GFAP from Quanterix or Fujirebio, assay platform as a covariate | `siemens_clean_assays`* |
-| `no_mri_to_plasma` | MRI volumes may not cause fluid biomarkers | saved code of `siemens_clean_assays` |
-
-\* The saved `_cog_amy`, `_tau_pet` and `_assays` notebooks were identical copies of one another, so the code
-for these three settings was lost. They were rebuilt from the variables shown in their figures
-(`archive/figures/`); check them before relying on them.
+| `no_mri_to_plasma` | MRI volumes may not cause fluid biomarkers | 
 
 To add a setting, add a `replace(MAIN, name=..., ...)` entry to `PRESETS` (see the end of the tutorial).
 
