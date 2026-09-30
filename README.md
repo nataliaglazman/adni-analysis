@@ -1,0 +1,119 @@
+# Causal discovery on ADNI multimodal biomarkers
+
+Bootstrapped FCI ([causal-learn](https://github.com/py-why/causal-learn)) on baseline ADNI data: plasma or CSF
+biomarkers, tau PET, MRI volumes, cognition and demographics. The `main` setting is the analysis in
+`docs/AAIC abstract.docx`.
+
+## Quick start
+
+```bash
+conda activate causallearn        # Python 3.13, packages in requirements.txt (+ graphviz for figures)
+python run_analysis.py --list     # available settings
+python run_analysis.py main       # full main analysis -> results/main/
+```
+
+A full KCI run of one setting (200 bootstraps, all steps) takes roughly 1–1.5 h on the 14-core M4 Pro; Fisher-z
+runs take seconds. `tutorial.ipynb` walks through every step: cohort, preprocessing, background knowledge,
+bootstrapped FCI and the summaries.
+
+## Settings
+
+Every setting is defined once in `adni_fci/settings.py`; together they replace the old per-setting notebooks.
+
+| Setting | Differs from `main` by | Old notebook |
+|---|---|---|
+| `main` | (plasma Aβ42/40, pTau217, NfL, GFAP; ICV, hippocampus; ADAS-Cog13; KCI, α = 0.05, 200 bootstraps) | `siemens_clean` |
+| `fisherz` | Fisher-z test instead of KCI | `siemens_clean_fisherz` |
+| `csf` | CSF Aβ42/40 and pTau181 instead of plasma | `siemens_clean_csf` |
+| `cognition` | adds MMSE, TMT-B and MoCA; no edges among cognitive scores | `siemens_clean_cog` |
+| `cognition_amygdala` | `cognition` plus amygdala volume | `siemens_clean_cog_amy`* |
+| `tau_pet` | tau PET (FTP meta-temporal SUVR) instead of plasma pTau217 | `siemens_clean_tau_pet`* |
+| `plasma_assays` | Mar 2026 plasma release: NfL/GFAP from Quanterix or Fujirebio, assay platform as a covariate | `siemens_clean_assays`* |
+| `no_mri_to_plasma` | MRI volumes may not cause fluid biomarkers | saved code of `siemens_clean_assays` |
+
+\* The saved `_cog_amy`, `_tau_pet` and `_assays` notebooks were identical copies of one another, so the code
+for these three settings was lost. They were rebuilt from the variables shown in their figures
+(`archive/figures/`); check them before relying on them.
+
+To add a setting, add a `replace(MAIN, name=..., ...)` entry to `PRESETS` (see the end of the tutorial).
+
+## Running
+
+```bash
+python run_analysis.py main csf tau_pet          # several settings
+python run_analysis.py all --steps main          # every setting, main step only
+python run_analysis.py main --n-bootstraps 50    # writes results/main_B50/, so full runs are never overwritten
+python run_analysis.py main --ci-test fisherz --alpha 0.01
+```
+
+`--steps` (default: all) selects from:
+
+- `main`: bootstrapped FCI, edge frequencies and PAG figures;
+- `sensitivity`: α = 0.01, 0.05 and 0.1 on the same resamples;
+- `sepsets`: separating sets of each biomarker vs hippocampal volume;
+- `stratified`: CN, MCI and AD separately, without cognitive scores.
+
+Bootstraps run in parallel on all cores (`--n-jobs`). Each one draws from its own random stream, so results do not
+depend on the number of workers.
+
+## Outputs (`results/<setting>/`)
+
+| File | Content |
+|---|---|
+| `setting.json` | every parameter of the run |
+| `cohort.csv`, `preprocessing.csv` | analysis dataset; skewness and transforms |
+| `edge_frequencies.csv` | frequency of every edge type for every pair of variables |
+| `pag.png`, `pag_stable.png` | PAG with edges of frequency ≥ 0.1 and ≥ 0.5 |
+| `endpoint_heatmaps.png` | P(arrowhead / tail / circle) at each endpoint |
+| `bootstrap_pags.npz` | raw bootstrap PAGs (`BootstrapResult.load`) |
+| `sensitivity_alpha.csv` | edge frequencies per α |
+| `sepsets.csv`, `sepsets.png` | separating sets, biomarker vs hippocampus |
+| `stratified/` | per-group edge frequencies, PAGs and a comparison table |
+
+`load_results(name)` and `compare_settings([...])` read finished runs back in, e.g. to re-plot with other thresholds
+without re-running FCI.
+
+## Layout
+
+```
+adni_fci/            analysis package
+  settings.py        all settings (PRESETS) and data paths
+  data.py            ADNI loading and cohort assembly
+  preprocessing.py   skew correction and scaling
+  knowledge.py       background knowledge and the restricted CI test
+  discovery.py       bootstrapped FCI
+  summaries.py       edge frequencies, separating sets, comparisons
+  plotting.py        PAG figures and heatmaps
+  pipeline.py        end-to-end run of one setting
+run_analysis.py      command line
+tutorial.ipynb       walkthrough
+data/                the 14 files the code reads: git-ignored, never commit (ADNI Data Use Agreement)
+data_unused/         every other data file, not read by the code (git-ignored for the same reason)
+results/             outputs (git-ignored, contain participant-level tables)
+archive/             old notebooks, figures and outputs (git-ignored)
+docs/                AAIC abstract; pipeline graphic for slides (pipeline.png/.svg/.pdf, made by pipeline_figure.py)
+```
+
+## Changes from the old notebooks
+
+The `main` cohort is identical to the notebooks' `siemens_merged_data.csv` (same 560 subjects, scans and values).
+Run in the same process on the same resamples, the new bootstrap code returns exactly the same PAGs as the notebook
+code (checked for 79 bootstraps with KCI and Fisher-z, including the `cognition` and `no_mri_to_plasma` rules).
+What changed:
+
+- **Reproducibility**: causal-learn's FCI output depended on Python's per-process hash seed. About 5% of
+  bootstrap PAGs changed between runs despite `np.random.seed(42)`, which affected the notebooks too. Node hashing
+  is now fixed, so reruns give identical results regardless of the number of workers.
+- **Diagnosis** uses `VISCODE2 == 'bl'`, like every other table. `VISCODE` is `bl` only in ADNI1 and left 71 of
+  560 subjects without a diagnosis. Diagnosis was also never merged into the cohort, so the stratified analysis
+  only ran off stale notebook state. Groups are now 295 CN, 196 MCI and 69 AD.
+- **Tau PET** is restricted to one tracer (FTP), since SUVRs are not comparable across tracers.
+- **Separating sets** are FCI's final sets (including the possible-D-sep step) from every bootstrap, instead of the
+  adjacency search alone on 5 bootstraps. Cognitive scores are dropped from them because they are never conditioned on.
+- **Speed**: each bootstrap runs FCI once (the extra run that only produced node objects is gone), bootstraps run
+  in parallel, and the sensitivity alphas reuse the same resamples and cached p-values.
+- **Small groups**: a bootstrap resample with redundant variables is redrawn and reported. For example, a resample
+  without any APOE4 homozygote makes the two APOE4 indicators mirror images, which made Fisher-z fail.
+- **Figures** draw the circle marks of `o->` edges, which were dropped before.
+- **Missing codes**: negative ADNI codes (-1, -4) in cognition and demographics count as missing, and a region volume
+  is missing if any of its parts is (they were summed as zero). Neither changes any current cohort.
