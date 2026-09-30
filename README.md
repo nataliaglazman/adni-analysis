@@ -94,26 +94,3 @@ archive/             old notebooks, figures and outputs (git-ignored)
 docs/                AAIC abstract; pipeline graphic for slides (pipeline.png/.svg/.pdf, made by pipeline_figure.py)
 ```
 
-## Changes from the old notebooks
-
-The `main` cohort is identical to the notebooks' `siemens_merged_data.csv` (same 560 subjects, scans and values).
-Run in the same process on the same resamples, the new bootstrap code returns exactly the same PAGs as the notebook
-code (checked for 79 bootstraps with KCI and Fisher-z, including the `cognition` and `no_mri_to_plasma` rules).
-What changed:
-
-- **Reproducibility**: causal-learn's FCI output depended on Python's per-process hash seed. About 5% of
-  bootstrap PAGs changed between runs despite `np.random.seed(42)`, which affected the notebooks too. Node hashing
-  is now fixed, so reruns give identical results regardless of the number of workers.
-- **Diagnosis** uses `VISCODE2 == 'bl'`, like every other table. `VISCODE` is `bl` only in ADNI1 and left 71 of
-  560 subjects without a diagnosis. Diagnosis was also never merged into the cohort, so the stratified analysis
-  only ran off stale notebook state. Groups are now 295 CN, 196 MCI and 69 AD.
-- **Tau PET** is restricted to one tracer (FTP), since SUVRs are not comparable across tracers.
-- **Separating sets** are FCI's final sets (including the possible-D-sep step) from every bootstrap, instead of the
-  adjacency search alone on 5 bootstraps. Cognitive scores are dropped from them because they are never conditioned on.
-- **Speed**: each bootstrap runs FCI once (the extra run that only produced node objects is gone), bootstraps run
-  in parallel, and the sensitivity alphas reuse the same resamples and cached p-values.
-- **Small groups**: a bootstrap resample with redundant variables is redrawn and reported. For example, a resample
-  without any APOE4 homozygote makes the two APOE4 indicators mirror images, which made Fisher-z fail.
-- **Figures** draw the circle marks of `o->` edges, which were dropped before.
-- **Missing codes**: negative ADNI codes (-1, -4) in cognition and demographics count as missing, and a region volume
-  is missing if any of its parts is (they were summed as zero). Neither changes any current cohort.
