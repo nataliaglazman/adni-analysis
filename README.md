@@ -21,7 +21,7 @@ bootstrapped FCI and the summaries.
 Every setting is defined once in `adni_fci/settings.py`; together they replace the old per-setting notebooks.
 
 | Setting | Differs from `main` by | 
-|---|---|---|
+|---|---|
 | `main` | (plasma Aβ42/40, pTau217, NfL, GFAP; ICV, hippocampus; ADAS-Cog13; KCI, α = 0.05, 200 bootstraps) | 
 | `fisherz` | Fisher-z test instead of KCI |
 | `csf` | CSF Aβ42/40 and pTau181 instead of plasma |
