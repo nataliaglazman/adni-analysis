@@ -5,6 +5,7 @@ data_unused/
 # Generated outputs and old notebooks/figures: they contain participant-level tables.
 results/
 archive/
+docs/
 
 .ipynb_checkpoints/
 
