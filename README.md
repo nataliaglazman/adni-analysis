@@ -1,8 +1,7 @@
 # Causal discovery on ADNI multimodal biomarkers
 
 Bootstrapped FCI ([causal-learn](https://github.com/py-why/causal-learn)) on baseline ADNI data: plasma or CSF
-biomarkers, tau PET, MRI volumes, cognition and demographics. The `main` setting is the analysis in
-`docs/AAIC abstract.docx`.
+biomarkers, tau PET, MRI volumes, cognition and demographics.
 
 ## Quick start
 
